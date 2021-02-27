@@ -9,12 +9,20 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  bool _isLoading = false;
+  bool _nowMovieLoading = false;
+  bool _notYetMovieLoading = false;
+  bool _popularMovieLoading = false;
+  bool _highRateMovieLoading = false;
 
   @override
   void initState() {
     super.initState();
-    _isLoading = true;
+    setState(() {
+      _nowMovieLoading = true;
+      _notYetMovieLoading = true;
+      _popularMovieLoading = true;
+      _highRateMovieLoading = true;
+    });
     doFutureInit();
   }
 
@@ -22,9 +30,30 @@ class _HomeScreenState extends State<HomeScreen> {
     try {
       await Provider.of<MovieListProvider>(context, listen: false)
           .fetchAndSetNowMovies();
+      setState(() {
+        _nowMovieLoading = false;
+      });
+//      await Provider.of<MovieListProvider>(context, listen: false)
+//          .fetchAndSetNowMovies();
+//      setState(() {
+//        _nowMovieLoading = false;
+//      });
+//      await Provider.of<MovieListProvider>(context, listen: false)
+//          .fetchAndSetNowMovies();
+//      setState(() {
+//        _nowMovieLoading = false;
+//      });
+//      await Provider.of<MovieListProvider>(context, listen: false)
+//          .fetchAndSetNowMovies();
+//      setState(() {
+//        _nowMovieLoading = false;
+//      });
     } catch (error) {} finally {
       setState(() {
-        _isLoading = false;
+        _nowMovieLoading = false;
+        _notYetMovieLoading = false;
+        _popularMovieLoading = false;
+        _highRateMovieLoading = false;
       });
     }
   }
@@ -66,7 +95,7 @@ class _HomeScreenState extends State<HomeScreen> {
         Container(
           height: 200,
           margin: EdgeInsets.only(top: 16, bottom: 40),
-          child: _isLoading
+          child: _nowMovieLoading
               ? Center(child: CircularProgressIndicator())
               : ListView.builder(
                   scrollDirection: Axis.horizontal,
@@ -117,7 +146,7 @@ class _HomeScreenState extends State<HomeScreen> {
         Container(
           margin: EdgeInsets.only(top: 16, bottom: 24),
           height: 235,
-          child: _isLoading
+          child: _notYetMovieLoading
               ? Center(child: CircularProgressIndicator())
               : Column(
                   children: [
@@ -140,7 +169,7 @@ class _HomeScreenState extends State<HomeScreen> {
         Container(
           margin: EdgeInsets.only(top: 16, bottom: 24),
           height: 235,
-          child: _isLoading
+          child: _popularMovieLoading
               ? Center(child: CircularProgressIndicator())
               : Column(
                   children: [
@@ -163,7 +192,7 @@ class _HomeScreenState extends State<HomeScreen> {
         Container(
           margin: EdgeInsets.only(top: 16, bottom: 24),
           height: 235,
-          child: _isLoading
+          child: _highRateMovieLoading
               ? Center(child: CircularProgressIndicator())
               : Column(
                   children: [
