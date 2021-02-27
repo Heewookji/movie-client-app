@@ -44,7 +44,7 @@ class HomeScreen extends StatelessWidget {
             itemCount: 8,
             itemBuilder: (ctx, i) {
               return Padding(
-                padding: const EdgeInsets.only(right: 17.0),
+                padding: EdgeInsets.only(right: 17.0),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
@@ -56,11 +56,17 @@ class HomeScreen extends StatelessWidget {
                         fit: BoxFit.cover,
                       ),
                     ),
-                    Text(
-                      'Test',
-                      style: TextStyle(fontSize: 12),
+                    Padding(
+                      padding: EdgeInsets.only(top: 7),
+                      child: Text(
+                        'Test',
+                        style: TextStyle(fontSize: 12),
+                      ),
                     ),
-                    Star(),
+                    Padding(
+                      padding: EdgeInsets.only(top: 4),
+                      child: Star(3),
+                    ),
                   ],
                 ),
               );
@@ -133,7 +139,7 @@ class HomeScreen extends StatelessWidget {
 
   Widget _buildMovieBlock() {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 8.0),
+      padding: EdgeInsets.only(bottom: 8.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -154,21 +160,27 @@ class HomeScreen extends StatelessWidget {
                   '11',
                   style: TextStyle(fontSize: 10),
                 ),
-                Star(),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Container(
-                      child: Text(
-                        '22',
+                Padding(
+                  padding: EdgeInsets.only(top: 4),
+                  child: Star(3),
+                ),
+                Padding(
+                  padding: EdgeInsets.only(top: 16),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Container(
+                        child: Text(
+                          '22',
+                          style: TextStyle(fontSize: 9),
+                        ),
+                      ),
+                      Text(
+                        'date',
                         style: TextStyle(fontSize: 9),
                       ),
-                    ),
-                    Text(
-                      'date',
-                      style: TextStyle(fontSize: 9),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ],
             ),
