@@ -10,6 +10,7 @@ class Star extends StatelessWidget {
   Widget build(BuildContext context) {
     return RatingBar.builder(
       initialRating: value / 2,
+      allowHalfRating: true,
       ignoreGestures: true,
       itemSize: 12,
       itemPadding: EdgeInsets.only(right: 4),

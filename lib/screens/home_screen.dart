@@ -47,10 +47,10 @@ class _HomeScreenState extends State<HomeScreen> {
     } catch (error) {}
   }
 
-  void _navigateToDetail(MovieDto movie) {
+  void _navigateToDetail(MovieDto movie, String movieGenres) {
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (ctx) => DetailScreen(movie),
+        builder: (ctx) => DetailScreen(movie, movieGenres),
       ),
     );
   }
@@ -100,8 +100,13 @@ class _HomeScreenState extends State<HomeScreen> {
                     itemCount: provider.nowMovies.length,
                     itemBuilder: (ctx, i) {
                       final movie = provider.nowMovies[i];
+                      String movieGenres = '';
+                      for (int i = 0; i < movie.genreIds.length; i++) {
+                        movieGenres += provider.genres[movie.genreIds[i]] +
+                            (i == movie.genreIds.length - 1 ? '' : ', ');
+                      }
                       return GestureDetector(
-                        onTap: () => _navigateToDetail(movie),
+                        onTap: () => _navigateToDetail(movie, movieGenres),
                         child: Container(
                           margin: EdgeInsets.only(right: 17.0),
                           width: 100,
@@ -234,9 +239,14 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildMovieBlock(MovieDto movie, Map<int, String> genres) {
+    String movieGenres = '';
+    for (int i = 0; i < movie.genreIds.length; i++) {
+      movieGenres += genres[movie.genreIds[i]] +
+          (i == movie.genreIds.length - 1 ? '' : ', ');
+    }
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
-      onTap: () => _navigateToDetail(movie),
+      onTap: () => _navigateToDetail(movie, movieGenres),
       child: Padding(
         padding: EdgeInsets.only(bottom: 8.0),
         child: Row(
@@ -282,15 +292,11 @@ class _HomeScreenState extends State<HomeScreen> {
                           width: 200,
                           child: Row(
                             children: [
-                              for (int i = 0; i < movie.genreIds.length; i++)
-                                Text(
-                                  genres[movie.genreIds[i]] +
-                                      (i == movie.genreIds.length - 1
-                                          ? ''
-                                          : ', '),
-                                  style: TextStyle(fontSize: 9),
-                                  overflow: TextOverflow.ellipsis,
-                                ),
+                              Text(
+                                movieGenres,
+                                style: TextStyle(fontSize: 9),
+                                overflow: TextOverflow.ellipsis,
+                              ),
                             ],
                           ),
                         ),
