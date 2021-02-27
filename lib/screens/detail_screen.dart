@@ -1,15 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:movie_client_app/models/movie_dto.dart';
 import 'package:movie_client_app/providers/detail_movie_provider.dart';
 import 'package:movie_client_app/widgets/star.dart';
 import 'package:provider/provider.dart';
 
 class DetailScreen extends StatefulWidget {
-  final MovieDto movie;
-  final String genres;
-
-  DetailScreen(this.movie, this.genres);
-
   @override
   _DetailScreenState createState() => _DetailScreenState();
 }
@@ -29,14 +23,20 @@ class _DetailScreenState extends State<DetailScreen> {
   Future<void> _doFutureInit() async {
     try {
       await Provider.of<DetailMovieProvider>(context, listen: false)
-          .fetchDetailMovieById(widget.movie.id);
+          .fetchDetailMovie();
+      await Provider.of<DetailMovieProvider>(context, listen: false)
+          .fetchMovieActor();
       _isLoading = false;
-    } catch (error) {}
+    } catch (error) {
+      print(error);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final _screenSize = MediaQuery.of(context).size;
+    final _movie =
+        Provider.of<DetailMovieProvider>(context, listen: false).movie;
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
@@ -55,7 +55,7 @@ class _DetailScreenState extends State<DetailScreen> {
                 widthFactor: 1,
                 heightFactor: 0.55,
                 child: Image.network(
-                  'https://image.tmdb.org/t/p/original${widget.movie.posterPath}',
+                  'https://image.tmdb.org/t/p/original${_movie.posterPath}',
                   color: Colors.black38,
                   colorBlendMode: BlendMode.darken,
                 ),
@@ -94,116 +94,159 @@ class _DetailScreenState extends State<DetailScreen> {
       }
     }
     return Container(
-      margin: EdgeInsets.only(
-        top: 140,
-      ),
+      margin: EdgeInsets.only(top: 140),
       width: _screenSize.width,
       padding: EdgeInsets.symmetric(horizontal: 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Container(
-                height: 180,
-                width: 110,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.all(Radius.circular(8)),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.4),
-                      spreadRadius: 1,
-                      blurRadius: 4,
-                      offset: Offset(0, 3), // changes position of shadow
-                    ),
-                  ],
-                ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(8.0),
-                  child: Image.network(
-                    'https://image.tmdb.org/t/p/original${widget.movie.posterPath}',
-                    fit: BoxFit.fill,
-                  ),
-                ),
-              ),
-              _isLoading
-                  ? CircularProgressIndicator()
-                  : Padding(
-                      padding: const EdgeInsets.only(left: 16.0),
-                      child: SizedBox(
-                        width: _screenSize.width * 0.45,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              provider.movieDetail['title'],
-                            ),
-                            provider.movieDetail['adult'] == false
-                                ? SizedBox(
-                                    height: 16,
-                                  )
-                                : Text(
-                                    provider.movieDetail['adult'].toString(),
-                                  ),
-                            Text(
-                              movieGenres,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            Text(
-                              '${widget.movie.releaseDate} 발매',
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            Row(
-                              children: [
-                                Star(widget.movie.voteAverage),
-                                Text(
-                                  widget.movie.voteAverage.toString(),
-                                  style: TextStyle(color: Colors.amber),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-            ],
-          ),
+          _buildHeadContents(_screenSize, provider, movieGenres),
           _isLoading
               ? Center(child: CircularProgressIndicator())
               : Column(
                   children: [
-                    Container(
-                      margin: EdgeInsets.only(top: 24),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('개요'),
-                          Text(provider.movieDetail['overview']),
-                        ],
-                      ),
-                    ),
-                    Container(
-                      margin: EdgeInsets.only(top: 24),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('주요 출연진'),
-                        ],
-                      ),
-                    ),
-                    Container(
-                      margin: EdgeInsets.only(top: 24),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('리뷰'),
-                        ],
-                      ),
-                    ),
+                    _buildOverview(provider),
+                    _buildActor(provider),
+                    _buildReview(provider),
                   ],
                 ),
+        ],
+      ),
+    );
+  }
+
+  Row _buildHeadContents(
+      Size _screenSize, DetailMovieProvider provider, String movieGenres) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        Container(
+          height: 180,
+          width: 110,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.all(Radius.circular(8)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.4),
+                spreadRadius: 1,
+                blurRadius: 4,
+                offset: Offset(0, 3), // changes position of shadow
+              ),
+            ],
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(8.0),
+            child: Image.network(
+              'https://image.tmdb.org/t/p/original${provider.movie.posterPath}',
+              fit: BoxFit.fill,
+            ),
+          ),
+        ),
+        _isLoading
+            ? CircularProgressIndicator()
+            : Padding(
+                padding: const EdgeInsets.only(left: 16.0),
+                child: SizedBox(
+                  width: _screenSize.width * 0.45,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        provider.movieDetail['title'],
+                      ),
+                      provider.movieDetail['adult'] == false
+                          ? SizedBox(
+                              height: 16,
+                            )
+                          : Text(
+                              provider.movieDetail['adult'].toString(),
+                            ),
+                      Text(
+                        movieGenres,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      Text(
+                        '${provider.movie.releaseDate} 발매',
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      Row(
+                        children: [
+                          Star(provider.movie.voteAverage),
+                          Text(
+                            provider.movie.voteAverage.toString(),
+                            style: TextStyle(color: Colors.amber),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+      ],
+    );
+  }
+
+  Container _buildOverview(DetailMovieProvider provider) {
+    return Container(
+      margin: EdgeInsets.only(top: 24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('개요'),
+          Text(provider.movieDetail['overview']),
+        ],
+      ),
+    );
+  }
+
+  Container _buildActor(DetailMovieProvider provider) {
+    return Container(
+      margin: EdgeInsets.only(top: 24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('주요 출연진'),
+          SizedBox(
+            height: 70,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              itemCount: provider.movieActors.length,
+              itemBuilder: (ctx, i) {
+                final Map<String, dynamic> actor = provider.movieActors[i];
+                return SizedBox(
+                  width: 60,
+                  child: Column(
+                    children: [
+                      CircleAvatar(
+                        backgroundImage: Image.network(
+                          'https://image.tmdb.org/t/p/original${actor['profile_path']}',
+                        ).image,
+                        radius: 20,
+                      ),
+                      Text(
+                        actor['name'],
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(fontSize: 8),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Container _buildReview(DetailMovieProvider provider) {
+    return Container(
+      margin: EdgeInsets.only(top: 24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('리뷰'),
         ],
       ),
     );

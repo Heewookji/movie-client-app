@@ -52,8 +52,8 @@ class _HomeScreenState extends State<HomeScreen> {
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (ctx) => ChangeNotifierProvider(
-          create: (ctx) => DetailMovieProvider(),
-          child: DetailScreen(movie, movieGenres),
+          create: (ctx) => DetailMovieProvider(movie),
+          child: DetailScreen(),
         ),
       ),
     );
