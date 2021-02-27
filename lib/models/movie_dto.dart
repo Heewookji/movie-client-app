@@ -16,6 +16,7 @@ abstract class MovieDto implements Built<MovieDto, MovieDtoBuilder> {
 
   @BuiltValueField(wireName: 'adult')
   bool get adult;
+  @nullable
   @BuiltValueField(wireName: 'backdrop_path')
   String get backdropPath;
   @BuiltValueField(wireName: 'genre_ids')
@@ -30,6 +31,7 @@ abstract class MovieDto implements Built<MovieDto, MovieDtoBuilder> {
   String get overview;
   @BuiltValueField(wireName: 'popularity')
   double get popularity;
+  @nullable
   @BuiltValueField(wireName: 'poster_path')
   String get posterPath;
   @BuiltValueField(wireName: 'release_date')

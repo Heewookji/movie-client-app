@@ -9,9 +9,9 @@ class Star extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return RatingBar.builder(
-      initialRating: value,
+      initialRating: value / 2,
       ignoreGestures: true,
-      itemSize: 10,
+      itemSize: 12,
       itemPadding: EdgeInsets.only(right: 4),
       itemBuilder: (ctx, _) => Icon(
         Icons.star,

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:movie_client_app/providers/movie_list_provider.dart';
+import 'package:movie_client_app/providers/now_movies_provider.dart';
 import 'package:movie_client_app/widgets/star.dart';
 import 'package:provider/provider.dart';
 
@@ -28,7 +28,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> doFutureInit() async {
     try {
-      await Provider.of<MovieListProvider>(context, listen: false)
+      await Provider.of<NowMoviesProvider>(context, listen: false)
           .fetchAndSetNowMovies();
       setState(() {
         _nowMovieLoading = false;
@@ -85,53 +85,69 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildNowMovie(ThemeData _theme) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          '현재 상영중',
-          style: _theme.textTheme.subtitle2,
-        ),
-        Container(
-          height: 200,
-          margin: EdgeInsets.only(top: 16, bottom: 40),
-          child: _nowMovieLoading
-              ? Center(child: CircularProgressIndicator())
-              : ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: 8,
-                  itemBuilder: (ctx, i) {
-                    return Padding(
-                      padding: EdgeInsets.only(right: 17.0),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          SizedBox(
-                            height: 160,
-                            width: 100,
-                            child: Image.network(
-                              'https://image.tmdb.org/t/p/original/3GW0A72MxsSgghqpjc2O2MvO8Ec.jpg',
-                              fit: BoxFit.cover,
+    return Consumer<NowMoviesProvider>(
+      builder: (ctx, provider, child) => Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            '현재 상영중',
+            style: _theme.textTheme.subtitle2,
+          ),
+          Container(
+            height: 200,
+            margin: EdgeInsets.only(top: 16, bottom: 40),
+            child: _nowMovieLoading
+                ? Center(child: CircularProgressIndicator())
+                : ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: provider.nowMovies.length,
+                    itemBuilder: (ctx, i) {
+                      final movie = provider.nowMovies[i];
+                      return Padding(
+                        padding: EdgeInsets.only(right: 17.0),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: [
+                            SizedBox(
+                              height: 160,
+                              width: 100,
+                              child: movie.posterPath == null
+                                  ? Container(
+                                      color: Colors.black26,
+                                      child: Center(
+                                        child: Text(
+                                          '정보가 없습니다',
+                                          textAlign: TextAlign.center,
+                                        ),
+                                      ),
+                                    )
+                                  : Image.network(
+                                      'https://image.tmdb.org/t/p/original${movie.posterPath}',
+                                      fit: BoxFit.cover,
+                                    ),
                             ),
-                          ),
-                          Padding(
-                            padding: EdgeInsets.only(top: 7),
-                            child: Text(
-                              'Test',
-                              style: TextStyle(fontSize: 12),
+                            Padding(
+                              padding: EdgeInsets.only(top: 7),
+                              child: Text(
+                                movie.title,
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
                             ),
-                          ),
-                          Padding(
-                            padding: EdgeInsets.only(top: 4),
-                            child: Star(3),
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-                ),
-        ),
-      ],
+                            Padding(
+                              padding: EdgeInsets.only(top: 4),
+                              child: Star(movie.voteAverage),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+          ),
+        ],
+      ),
     );
   }
 

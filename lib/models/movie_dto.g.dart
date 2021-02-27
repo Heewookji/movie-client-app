@@ -20,9 +20,6 @@ class _$MovieDtoSerializer implements StructuredSerializer<MovieDto> {
     final result = <Object>[
       'adult',
       serializers.serialize(object.adult, specifiedType: const FullType(bool)),
-      'backdrop_path',
-      serializers.serialize(object.backdropPath,
-          specifiedType: const FullType(String)),
       'genre_ids',
       serializers.serialize(object.genreIds,
           specifiedType:
@@ -41,9 +38,6 @@ class _$MovieDtoSerializer implements StructuredSerializer<MovieDto> {
       'popularity',
       serializers.serialize(object.popularity,
           specifiedType: const FullType(double)),
-      'poster_path',
-      serializers.serialize(object.posterPath,
-          specifiedType: const FullType(String)),
       'release_date',
       serializers.serialize(object.releaseDate,
           specifiedType: const FullType(String)),
@@ -59,7 +53,18 @@ class _$MovieDtoSerializer implements StructuredSerializer<MovieDto> {
       serializers.serialize(object.voteCount,
           specifiedType: const FullType(int)),
     ];
-
+    if (object.backdropPath != null) {
+      result
+        ..add('backdrop_path')
+        ..add(serializers.serialize(object.backdropPath,
+            specifiedType: const FullType(String)));
+    }
+    if (object.posterPath != null) {
+      result
+        ..add('poster_path')
+        ..add(serializers.serialize(object.posterPath,
+            specifiedType: const FullType(String)));
+    }
     return result;
   }
 
@@ -191,9 +196,6 @@ class _$MovieDto extends MovieDto {
     if (adult == null) {
       throw new BuiltValueNullFieldError('MovieDto', 'adult');
     }
-    if (backdropPath == null) {
-      throw new BuiltValueNullFieldError('MovieDto', 'backdropPath');
-    }
     if (genreIds == null) {
       throw new BuiltValueNullFieldError('MovieDto', 'genreIds');
     }
@@ -211,9 +213,6 @@ class _$MovieDto extends MovieDto {
     }
     if (popularity == null) {
       throw new BuiltValueNullFieldError('MovieDto', 'popularity');
-    }
-    if (posterPath == null) {
-      throw new BuiltValueNullFieldError('MovieDto', 'posterPath');
     }
     if (releaseDate == null) {
       throw new BuiltValueNullFieldError('MovieDto', 'releaseDate');

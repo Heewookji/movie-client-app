@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:movie_client_app/providers/movie_list_provider.dart';
+import 'package:movie_client_app/providers/now_movies_provider.dart';
 import 'package:movie_client_app/screens/home_screen.dart';
 import 'package:provider/provider.dart';
 
@@ -13,7 +13,7 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(
-          create: (ctx) => MovieListProvider(),
+          create: (ctx) => NowMoviesProvider(),
         )
       ],
       child: MaterialApp(
