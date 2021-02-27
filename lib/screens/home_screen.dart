@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:movie_client_app/models/movie_dto.dart';
+import 'package:movie_client_app/providers/detail_movie_provider.dart';
 import 'package:movie_client_app/providers/home_movies_provider.dart';
 import 'package:movie_client_app/screens/detail_screen.dart';
 import 'package:movie_client_app/widgets/star.dart';
@@ -50,7 +51,10 @@ class _HomeScreenState extends State<HomeScreen> {
   void _navigateToDetail(MovieDto movie, String movieGenres) {
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (ctx) => DetailScreen(movie, movieGenres),
+        builder: (ctx) => ChangeNotifierProvider(
+          create: (ctx) => DetailMovieProvider(),
+          child: DetailScreen(movie, movieGenres),
+        ),
       ),
     );
   }
@@ -58,6 +62,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     ThemeData _theme = Theme.of(context);
+    Size _screenSize = MediaQuery.of(context).size;
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
@@ -70,9 +75,9 @@ class _HomeScreenState extends State<HomeScreen> {
             child: Column(
               children: [
                 _buildNowMovie(_theme),
-                _buildNotYetMovie(_theme),
-                _buildPopularMovie(_theme),
-                _buildHighRateMovie(_theme),
+                _buildNotYetMovie(_theme, _screenSize),
+                _buildPopularMovie(_theme, _screenSize),
+                _buildHighRateMovie(_theme, _screenSize),
               ],
             ),
           ),
@@ -97,6 +102,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ? Center(child: CircularProgressIndicator())
                 : ListView.builder(
                     scrollDirection: Axis.horizontal,
+                    cacheExtent: 100,
                     itemCount: provider.nowMovies.length,
                     itemBuilder: (ctx, i) {
                       final movie = provider.nowMovies[i];
@@ -115,6 +121,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             children: [
                               SizedBox(
                                 height: 160,
+                                width: 100,
                                 child: movie.posterPath == null
                                     ? Container(
                                         color: Colors.black26,
@@ -125,9 +132,30 @@ class _HomeScreenState extends State<HomeScreen> {
                                           ),
                                         ),
                                       )
-                                    : Image.network(
-                                        'https://image.tmdb.org/t/p/original${movie.posterPath}',
-                                        fit: BoxFit.cover,
+                                    : Container(
+                                        decoration: BoxDecoration(
+                                          color: Colors.white,
+                                          borderRadius: BorderRadius.all(
+                                              Radius.circular(8)),
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color:
+                                                  Colors.black.withOpacity(0.4),
+                                              spreadRadius: 1,
+                                              blurRadius: 4,
+                                              offset: Offset(0,
+                                                  3), // changes position of shadow
+                                            ),
+                                          ],
+                                        ),
+                                        child: ClipRRect(
+                                          borderRadius:
+                                              BorderRadius.circular(8.0),
+                                          child: Image.network(
+                                            'https://image.tmdb.org/t/p/original${movie.posterPath}',
+                                            fit: BoxFit.cover,
+                                          ),
+                                        ),
                                       ),
                               ),
                               Padding(
@@ -157,7 +185,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildNotYetMovie(ThemeData _theme) {
+  Widget _buildNotYetMovie(ThemeData _theme, Size _screenSize) {
     return Consumer<HomeMoviesProvider>(
       builder: (ctx, provider, child) => Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -175,7 +203,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     children: [
                       for (int i = 0; i < 3; i++)
                         _buildMovieBlock(
-                            provider.notYetMovies[i], provider.genres),
+                          _screenSize,
+                          provider.notYetMovies[i],
+                          provider.genres,
+                        ),
                     ],
                   ),
           ),
@@ -184,7 +215,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildPopularMovie(ThemeData _theme) {
+  Widget _buildPopularMovie(ThemeData _theme, Size _screenSize) {
     return Consumer<HomeMoviesProvider>(
       builder: (ctx, provider, child) => Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -202,7 +233,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     children: [
                       for (int i = 0; i < 3; i++)
                         _buildMovieBlock(
-                            provider.popularMovies[i], provider.genres),
+                          _screenSize,
+                          provider.popularMovies[i],
+                          provider.genres,
+                        ),
                     ],
                   ),
           ),
@@ -211,7 +245,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildHighRateMovie(ThemeData _theme) {
+  Widget _buildHighRateMovie(ThemeData _theme, Size _screenSize) {
     return Consumer<HomeMoviesProvider>(
       builder: (ctx, provider, child) => Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -229,7 +263,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     children: [
                       for (int i = 0; i < 3; i++)
                         _buildMovieBlock(
-                            provider.highRateMovies[i], provider.genres),
+                          _screenSize,
+                          provider.highRateMovies[i],
+                          provider.genres,
+                        ),
                     ],
                   ),
           ),
@@ -238,7 +275,8 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildMovieBlock(MovieDto movie, Map<int, String> genres) {
+  Widget _buildMovieBlock(
+      Size _screenSize, MovieDto movie, Map<int, String> genres) {
     String movieGenres = '';
     for (int i = 0; i < movie.genreIds.length; i++) {
       movieGenres += genres[movie.genreIds[i]] +
@@ -266,9 +304,26 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ),
                     )
-                  : Image.network(
-                      'https://image.tmdb.org/t/p/original${movie.posterPath}',
-                      fit: BoxFit.cover,
+                  : Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.all(Radius.circular(4)),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.4),
+                            spreadRadius: 1,
+                            blurRadius: 4,
+                            offset: Offset(0, 3), // changes position of shadow
+                          ),
+                        ],
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(4.0),
+                        child: Image.network(
+                          'https://image.tmdb.org/t/p/original${movie.posterPath}',
+                          fit: BoxFit.cover,
+                        ),
+                      ),
                     ),
             ),
             Expanded(
@@ -289,15 +344,11 @@ class _HomeScreenState extends State<HomeScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Container(
-                          width: 200,
-                          child: Row(
-                            children: [
-                              Text(
-                                movieGenres,
-                                style: TextStyle(fontSize: 9),
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ],
+                          width: _screenSize.width * 0.45,
+                          child: Text(
+                            movieGenres,
+                            style: TextStyle(fontSize: 9),
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
                         Container(

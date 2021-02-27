@@ -14,7 +14,7 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(
           create: (ctx) => HomeMoviesProvider(),
-        )
+        ),
       ],
       child: MaterialApp(
         title: 'Flutter Demo',
