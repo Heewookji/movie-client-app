@@ -1,7 +1,34 @@
 import 'package:flutter/material.dart';
-import 'package:movie_client_app/star.dart';
+import 'package:movie_client_app/providers/movie_list_provider.dart';
+import 'package:movie_client_app/widgets/star.dart';
+import 'package:provider/provider.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
+  @override
+  _HomeScreenState createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _isLoading = true;
+    doFutureInit();
+  }
+
+  Future<void> doFutureInit() async {
+    try {
+      await Provider.of<MovieListProvider>(context, listen: false)
+          .fetchAndSetNowMovies();
+    } catch (error) {} finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     ThemeData _theme = Theme.of(context);
@@ -39,39 +66,41 @@ class HomeScreen extends StatelessWidget {
         Container(
           height: 200,
           margin: EdgeInsets.only(top: 16, bottom: 40),
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            itemCount: 8,
-            itemBuilder: (ctx, i) {
-              return Padding(
-                padding: EdgeInsets.only(right: 17.0),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    SizedBox(
-                      height: 160,
-                      width: 100,
-                      child: Image.network(
-                        'https://image.tmdb.org/t/p/original/3GW0A72MxsSgghqpjc2O2MvO8Ec.jpg',
-                        fit: BoxFit.cover,
+          child: _isLoading
+              ? Center(child: CircularProgressIndicator())
+              : ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: 8,
+                  itemBuilder: (ctx, i) {
+                    return Padding(
+                      padding: EdgeInsets.only(right: 17.0),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          SizedBox(
+                            height: 160,
+                            width: 100,
+                            child: Image.network(
+                              'https://image.tmdb.org/t/p/original/3GW0A72MxsSgghqpjc2O2MvO8Ec.jpg',
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                          Padding(
+                            padding: EdgeInsets.only(top: 7),
+                            child: Text(
+                              'Test',
+                              style: TextStyle(fontSize: 12),
+                            ),
+                          ),
+                          Padding(
+                            padding: EdgeInsets.only(top: 4),
+                            child: Star(3),
+                          ),
+                        ],
                       ),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.only(top: 7),
-                      child: Text(
-                        'Test',
-                        style: TextStyle(fontSize: 12),
-                      ),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.only(top: 4),
-                      child: Star(3),
-                    ),
-                  ],
+                    );
+                  },
                 ),
-              );
-            },
-          ),
         ),
       ],
     );
@@ -87,11 +116,14 @@ class HomeScreen extends StatelessWidget {
         ),
         Container(
           margin: EdgeInsets.only(top: 16, bottom: 24),
-          child: Column(
-            children: [
-              for (int i = 0; i < 3; i++) _buildMovieBlock(),
-            ],
-          ),
+          height: 235,
+          child: _isLoading
+              ? Center(child: CircularProgressIndicator())
+              : Column(
+                  children: [
+                    for (int i = 0; i < 3; i++) _buildMovieBlock(),
+                  ],
+                ),
         ),
       ],
     );
@@ -107,11 +139,14 @@ class HomeScreen extends StatelessWidget {
         ),
         Container(
           margin: EdgeInsets.only(top: 16, bottom: 24),
-          child: Column(
-            children: [
-              for (int i = 0; i < 3; i++) _buildMovieBlock(),
-            ],
-          ),
+          height: 235,
+          child: _isLoading
+              ? Center(child: CircularProgressIndicator())
+              : Column(
+                  children: [
+                    for (int i = 0; i < 3; i++) _buildMovieBlock(),
+                  ],
+                ),
         ),
       ],
     );
@@ -127,11 +162,14 @@ class HomeScreen extends StatelessWidget {
         ),
         Container(
           margin: EdgeInsets.only(top: 16, bottom: 24),
-          child: Column(
-            children: [
-              for (int i = 0; i < 3; i++) _buildMovieBlock(),
-            ],
-          ),
+          height: 235,
+          child: _isLoading
+              ? Center(child: CircularProgressIndicator())
+              : Column(
+                  children: [
+                    for (int i = 0; i < 3; i++) _buildMovieBlock(),
+                  ],
+                ),
         ),
       ],
     );

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:movie_client_app/home_screen.dart';
+import 'package:movie_client_app/providers/movie_list_provider.dart';
+import 'package:movie_client_app/screens/home_screen.dart';
+import 'package:provider/provider.dart';
 
 void main() {
   runApp(MyApp());
@@ -8,11 +10,18 @@ void main() {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      debugShowCheckedModeBanner: false,
-      theme: _buildTheme(),
-      home: HomeScreen(),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(
+          create: (ctx) => MovieListProvider(),
+        )
+      ],
+      child: MaterialApp(
+        title: 'Flutter Demo',
+        debugShowCheckedModeBanner: false,
+        theme: _buildTheme(),
+        home: HomeScreen(),
+      ),
     );
   }
 
