@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:movie_client_app/providers/now_movies_provider.dart';
+import 'package:movie_client_app/models/movie_dto.dart';
+import 'package:movie_client_app/providers/home_movies_provider.dart';
 import 'package:movie_client_app/widgets/star.dart';
 import 'package:provider/provider.dart';
 
@@ -28,26 +29,20 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> doFutureInit() async {
     try {
-      await Provider.of<NowMoviesProvider>(context, listen: false)
+      await Provider.of<HomeMoviesProvider>(context, listen: false)
+          .fetchAndSetGenres();
+      await Provider.of<HomeMoviesProvider>(context, listen: false)
           .fetchAndSetNowMovies();
-      setState(() {
-        _nowMovieLoading = false;
-      });
-//      await Provider.of<MovieListProvider>(context, listen: false)
-//          .fetchAndSetNowMovies();
-//      setState(() {
-//        _nowMovieLoading = false;
-//      });
-//      await Provider.of<MovieListProvider>(context, listen: false)
-//          .fetchAndSetNowMovies();
-//      setState(() {
-//        _nowMovieLoading = false;
-//      });
-//      await Provider.of<MovieListProvider>(context, listen: false)
-//          .fetchAndSetNowMovies();
-//      setState(() {
-//        _nowMovieLoading = false;
-//      });
+      _nowMovieLoading = false;
+      await Provider.of<HomeMoviesProvider>(context, listen: false)
+          .fetchAndSetNotYetMovies();
+      _notYetMovieLoading = false;
+      await Provider.of<HomeMoviesProvider>(context, listen: false)
+          .fetchAndSetPopularMovies();
+      _popularMovieLoading = false;
+      await Provider.of<HomeMoviesProvider>(context, listen: false)
+          .fetchAndSetHighRateMovies();
+      _highRateMovieLoading = false;
     } catch (error) {} finally {
       setState(() {
         _nowMovieLoading = false;
@@ -85,7 +80,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildNowMovie(ThemeData _theme) {
-    return Consumer<NowMoviesProvider>(
+    return Consumer<HomeMoviesProvider>(
       builder: (ctx, provider, child) => Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -153,75 +148,87 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildNotYetMovie(ThemeData _theme) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          '개봉 예정',
-          style: _theme.textTheme.subtitle2,
-        ),
-        Container(
-          margin: EdgeInsets.only(top: 16, bottom: 24),
-          height: 235,
-          child: _notYetMovieLoading
-              ? Center(child: CircularProgressIndicator())
-              : Column(
-                  children: [
-                    for (int i = 0; i < 3; i++) _buildMovieBlock(),
-                  ],
-                ),
-        ),
-      ],
+    return Consumer<HomeMoviesProvider>(
+      builder: (ctx, provider, child) => Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            '개봉 예정',
+            style: _theme.textTheme.subtitle2,
+          ),
+          Container(
+            margin: EdgeInsets.only(top: 16, bottom: 24),
+            height: 235,
+            child: _notYetMovieLoading
+                ? Center(child: CircularProgressIndicator())
+                : Column(
+                    children: [
+                      for (int i = 0; i < 3; i++)
+                        _buildMovieBlock(
+                            provider.notYetMovies[i], provider.genres),
+                    ],
+                  ),
+          ),
+        ],
+      ),
     );
   }
 
   Widget _buildPopularMovie(ThemeData _theme) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          '인기',
-          style: _theme.textTheme.subtitle2,
-        ),
-        Container(
-          margin: EdgeInsets.only(top: 16, bottom: 24),
-          height: 235,
-          child: _popularMovieLoading
-              ? Center(child: CircularProgressIndicator())
-              : Column(
-                  children: [
-                    for (int i = 0; i < 3; i++) _buildMovieBlock(),
-                  ],
-                ),
-        ),
-      ],
+    return Consumer<HomeMoviesProvider>(
+      builder: (ctx, provider, child) => Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            '인기',
+            style: _theme.textTheme.subtitle2,
+          ),
+          Container(
+            margin: EdgeInsets.only(top: 16, bottom: 24),
+            height: 235,
+            child: _popularMovieLoading
+                ? Center(child: CircularProgressIndicator())
+                : Column(
+                    children: [
+                      for (int i = 0; i < 3; i++)
+                        _buildMovieBlock(
+                            provider.popularMovies[i], provider.genres),
+                    ],
+                  ),
+          ),
+        ],
+      ),
     );
   }
 
   Widget _buildHighRateMovie(ThemeData _theme) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          '높은 평점',
-          style: _theme.textTheme.subtitle2,
-        ),
-        Container(
-          margin: EdgeInsets.only(top: 16, bottom: 24),
-          height: 235,
-          child: _highRateMovieLoading
-              ? Center(child: CircularProgressIndicator())
-              : Column(
-                  children: [
-                    for (int i = 0; i < 3; i++) _buildMovieBlock(),
-                  ],
-                ),
-        ),
-      ],
+    return Consumer<HomeMoviesProvider>(
+      builder: (ctx, provider, child) => Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            '높은 평점',
+            style: _theme.textTheme.subtitle2,
+          ),
+          Container(
+            margin: EdgeInsets.only(top: 16, bottom: 24),
+            height: 235,
+            child: _highRateMovieLoading
+                ? Center(child: CircularProgressIndicator())
+                : Column(
+                    children: [
+                      for (int i = 0; i < 3; i++)
+                        _buildMovieBlock(
+                            provider.highRateMovies[i], provider.genres),
+                    ],
+                  ),
+          ),
+        ],
+      ),
     );
   }
 
-  Widget _buildMovieBlock() {
+  Widget _buildMovieBlock(MovieDto movie, Map<int, String> genres) {
     return Padding(
       padding: EdgeInsets.only(bottom: 8.0),
       child: Row(
@@ -231,22 +238,32 @@ class _HomeScreenState extends State<HomeScreen> {
             height: 70,
             width: 45,
             margin: EdgeInsets.only(right: 16),
-            child: Image.network(
-              'https://image.tmdb.org/t/p/original/3GW0A72MxsSgghqpjc2O2MvO8Ec.jpg',
-              fit: BoxFit.cover,
-            ),
+            child: movie.posterPath == null
+                ? Container(
+                    color: Colors.black26,
+                    child: Center(
+                      child: Text(
+                        '정보가 없습니다',
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  )
+                : Image.network(
+                    'https://image.tmdb.org/t/p/original${movie.posterPath}',
+                    fit: BoxFit.cover,
+                  ),
           ),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '11',
+                  movie.title,
                   style: TextStyle(fontSize: 10),
                 ),
                 Padding(
                   padding: EdgeInsets.only(top: 4),
-                  child: Star(3),
+                  child: Star(movie.voteAverage),
                 ),
                 Padding(
                   padding: EdgeInsets.only(top: 16),
@@ -254,14 +271,27 @@ class _HomeScreenState extends State<HomeScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Container(
-                        child: Text(
-                          '22',
-                          style: TextStyle(fontSize: 9),
+                        width: 200,
+                        child: Row(
+                          children: [
+                            for (int i = 0; i < movie.genreIds.length; i++)
+                              Text(
+                                genres[movie.genreIds[i]] +
+                                    (i == movie.genreIds.length - 1
+                                        ? ''
+                                        : ', '),
+                                style: TextStyle(fontSize: 9),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                          ],
                         ),
                       ),
-                      Text(
-                        'date',
-                        style: TextStyle(fontSize: 9),
+                      Container(
+                        width: 50,
+                        child: Text(
+                          movie.releaseDate,
+                          style: TextStyle(fontSize: 9),
+                        ),
                       ),
                     ],
                   ),
