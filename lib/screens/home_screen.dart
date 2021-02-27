@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:movie_client_app/models/movie_dto.dart';
 import 'package:movie_client_app/providers/home_movies_provider.dart';
+import 'package:movie_client_app/screens/detail_screen.dart';
 import 'package:movie_client_app/widgets/star.dart';
 import 'package:provider/provider.dart';
 
@@ -24,10 +25,10 @@ class _HomeScreenState extends State<HomeScreen> {
       _popularMovieLoading = true;
       _highRateMovieLoading = true;
     });
-    doFutureInit();
+    _doFutureInit();
   }
 
-  Future<void> doFutureInit() async {
+  Future<void> _doFutureInit() async {
     try {
       await Provider.of<HomeMoviesProvider>(context, listen: false)
           .fetchAndSetGenres();
@@ -43,14 +44,15 @@ class _HomeScreenState extends State<HomeScreen> {
       await Provider.of<HomeMoviesProvider>(context, listen: false)
           .fetchAndSetHighRateMovies();
       _highRateMovieLoading = false;
-    } catch (error) {} finally {
-      setState(() {
-        _nowMovieLoading = false;
-        _notYetMovieLoading = false;
-        _popularMovieLoading = false;
-        _highRateMovieLoading = false;
-      });
-    }
+    } catch (error) {}
+  }
+
+  void _navigateToDetail(MovieDto movie) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (ctx) => DetailScreen(movie),
+      ),
+    );
   }
 
   @override
@@ -98,45 +100,48 @@ class _HomeScreenState extends State<HomeScreen> {
                     itemCount: provider.nowMovies.length,
                     itemBuilder: (ctx, i) {
                       final movie = provider.nowMovies[i];
-                      return Container(
-                        margin: EdgeInsets.only(right: 17.0),
-                        width: 100,
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: [
-                            SizedBox(
-                              height: 160,
-                              child: movie.posterPath == null
-                                  ? Container(
-                                      color: Colors.black26,
-                                      child: Center(
-                                        child: Text(
-                                          '정보가 없습니다',
-                                          textAlign: TextAlign.center,
+                      return GestureDetector(
+                        onTap: () => _navigateToDetail(movie),
+                        child: Container(
+                          margin: EdgeInsets.only(right: 17.0),
+                          width: 100,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: [
+                              SizedBox(
+                                height: 160,
+                                child: movie.posterPath == null
+                                    ? Container(
+                                        color: Colors.black26,
+                                        child: Center(
+                                          child: Text(
+                                            '정보가 없습니다',
+                                            textAlign: TextAlign.center,
+                                          ),
                                         ),
+                                      )
+                                    : Image.network(
+                                        'https://image.tmdb.org/t/p/original${movie.posterPath}',
+                                        fit: BoxFit.cover,
                                       ),
-                                    )
-                                  : Image.network(
-                                      'https://image.tmdb.org/t/p/original${movie.posterPath}',
-                                      fit: BoxFit.cover,
-                                    ),
-                            ),
-                            Padding(
-                              padding: EdgeInsets.only(top: 7),
-                              child: Text(
-                                movie.title,
-                                overflow: TextOverflow.ellipsis,
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w700,
+                              ),
+                              Padding(
+                                padding: EdgeInsets.only(top: 7),
+                                child: Text(
+                                  movie.title,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w700,
+                                  ),
                                 ),
                               ),
-                            ),
-                            Padding(
-                              padding: EdgeInsets.only(top: 4),
-                              child: Star(movie.voteAverage),
-                            ),
-                          ],
+                              Padding(
+                                padding: EdgeInsets.only(top: 4),
+                                child: Star(movie.voteAverage),
+                              ),
+                            ],
+                          ),
                         ),
                       );
                     },
@@ -229,77 +234,81 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildMovieBlock(MovieDto movie, Map<int, String> genres) {
-    return Padding(
-      padding: EdgeInsets.only(bottom: 8.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Container(
-            height: 70,
-            width: 45,
-            margin: EdgeInsets.only(right: 16),
-            child: movie.posterPath == null
-                ? Container(
-                    color: Colors.black26,
-                    child: Center(
-                      child: Text(
-                        '정보가 없습니다',
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                  )
-                : Image.network(
-                    'https://image.tmdb.org/t/p/original${movie.posterPath}',
-                    fit: BoxFit.cover,
-                  ),
-          ),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  movie.title,
-                  style: TextStyle(fontSize: 10),
-                ),
-                Padding(
-                  padding: EdgeInsets.only(top: 4),
-                  child: Star(movie.voteAverage),
-                ),
-                Padding(
-                  padding: EdgeInsets.only(top: 16),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Container(
-                        width: 200,
-                        child: Row(
-                          children: [
-                            for (int i = 0; i < movie.genreIds.length; i++)
-                              Text(
-                                genres[movie.genreIds[i]] +
-                                    (i == movie.genreIds.length - 1
-                                        ? ''
-                                        : ', '),
-                                style: TextStyle(fontSize: 9),
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                          ],
-                        ),
-                      ),
-                      Container(
-                        width: 50,
+    return GestureDetector(
+      behavior: HitTestBehavior.translucent,
+      onTap: () => _navigateToDetail(movie),
+      child: Padding(
+        padding: EdgeInsets.only(bottom: 8.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Container(
+              height: 70,
+              width: 45,
+              margin: EdgeInsets.only(right: 16),
+              child: movie.posterPath == null
+                  ? Container(
+                      color: Colors.black26,
+                      child: Center(
                         child: Text(
-                          movie.releaseDate,
-                          style: TextStyle(fontSize: 9),
+                          '정보가 없습니다',
+                          textAlign: TextAlign.center,
                         ),
                       ),
-                    ],
-                  ),
-                ),
-              ],
+                    )
+                  : Image.network(
+                      'https://image.tmdb.org/t/p/original${movie.posterPath}',
+                      fit: BoxFit.cover,
+                    ),
             ),
-          ),
-        ],
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    movie.title,
+                    style: TextStyle(fontSize: 10),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.only(top: 4),
+                    child: Star(movie.voteAverage),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.only(top: 16),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Container(
+                          width: 200,
+                          child: Row(
+                            children: [
+                              for (int i = 0; i < movie.genreIds.length; i++)
+                                Text(
+                                  genres[movie.genreIds[i]] +
+                                      (i == movie.genreIds.length - 1
+                                          ? ''
+                                          : ', '),
+                                  style: TextStyle(fontSize: 9),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                            ],
+                          ),
+                        ),
+                        Container(
+                          width: 50,
+                          child: Text(
+                            movie.releaseDate,
+                            style: TextStyle(fontSize: 9),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
