@@ -103,14 +103,14 @@ class _HomeScreenState extends State<HomeScreen> {
                     itemCount: provider.nowMovies.length,
                     itemBuilder: (ctx, i) {
                       final movie = provider.nowMovies[i];
-                      return Padding(
-                        padding: EdgeInsets.only(right: 17.0),
+                      return Container(
+                        margin: EdgeInsets.only(right: 17.0),
+                        width: 100,
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
                           children: [
                             SizedBox(
                               height: 160,
-                              width: 100,
                               child: movie.posterPath == null
                                   ? Container(
                                       color: Colors.black26,
@@ -130,6 +130,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               padding: EdgeInsets.only(top: 7),
                               child: Text(
                                 movie.title,
+                                overflow: TextOverflow.ellipsis,
                                 style: TextStyle(
                                   fontSize: 12,
                                   fontWeight: FontWeight.w700,
