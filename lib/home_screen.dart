@@ -56,7 +56,10 @@ class HomeScreen extends StatelessWidget {
                         fit: BoxFit.cover,
                       ),
                     ),
-                    Text('Test'),
+                    Text(
+                      'Test',
+                      style: TextStyle(fontSize: 12),
+                    ),
                     Star(),
                   ],
                 ),
@@ -147,16 +150,29 @@ class HomeScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('11'),
+                Text(
+                  '11',
+                  style: TextStyle(fontSize: 10),
+                ),
                 Star(),
-                Container(
-                  margin: EdgeInsets.only(top: 16),
-                  child: Text('22'),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Container(
+                      child: Text(
+                        '22',
+                        style: TextStyle(fontSize: 9),
+                      ),
+                    ),
+                    Text(
+                      'date',
+                      style: TextStyle(fontSize: 9),
+                    ),
+                  ],
                 ),
               ],
             ),
           ),
-          Text('date')
         ],
       ),
     );
