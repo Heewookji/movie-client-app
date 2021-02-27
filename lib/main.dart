@@ -20,6 +20,7 @@ class MyApp extends StatelessWidget {
     return ThemeData(
       canvasColor: Colors.white,
       visualDensity: VisualDensity.adaptivePlatformDensity,
+      fontFamily: 'NotoSansKR',
       textTheme: TextTheme(
         subtitle2: TextStyle(
           fontSize: 20,
