@@ -56,7 +56,7 @@ class _DetailScreenState extends State<DetailScreen> {
                 heightFactor: 0.55,
                 child: Image.network(
                   'https://image.tmdb.org/t/p/original${_movie.posterPath}',
-                  color: Colors.black38,
+                  color: Colors.black54,
                   colorBlendMode: BlendMode.darken,
                 ),
               ),
@@ -155,30 +155,56 @@ class _DetailScreenState extends State<DetailScreen> {
                     children: [
                       Text(
                         provider.movieDetail['title'],
+                        style: TextStyle(
+                            fontSize: 12, fontWeight: FontWeight.bold),
                       ),
-                      provider.movieDetail['adult'] == false
-                          ? SizedBox(
-                              height: 16,
-                            )
-                          : Text(
-                              provider.movieDetail['adult'].toString(),
+                      Container(
+                        height: 16,
+                        width: 30,
+                        margin: EdgeInsets.only(top: 8),
+                        child: provider.movieDetail['adult'] == true
+                            ? Container()
+                            : OutlineButton(
+                                onPressed: () {},
+                                textColor: Colors.red,
+                                padding: EdgeInsets.zero,
+                                child: Text(
+                                  "Adult",
+                                  style: TextStyle(fontSize: 8),
+                                ),
+                                borderSide: BorderSide(color: Colors.red),
+                              ),
+                      ),
+                      Container(
+                        margin: EdgeInsets.only(top: 4),
+                        child: Text(
+                          movieGenres,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(fontSize: 11, color: Colors.black45),
+                        ),
+                      ),
+                      Container(
+                        margin: EdgeInsets.only(top: 2),
+                        child: Text(
+                          '${provider.movie.releaseDate} 발매',
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(fontSize: 11, color: Colors.black45),
+                        ),
+                      ),
+                      Container(
+                        margin: EdgeInsets.only(top: 4),
+                        child: Row(
+                          children: [
+                            Star(provider.movie.voteAverage),
+                            Text(
+                              provider.movie.voteAverage.toString(),
+                              style: TextStyle(
+                                color: Colors.amber,
+                                fontSize: 11,
+                              ),
                             ),
-                      Text(
-                        movieGenres,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      Text(
-                        '${provider.movie.releaseDate} 발매',
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      Row(
-                        children: [
-                          Star(provider.movie.voteAverage),
-                          Text(
-                            provider.movie.voteAverage.toString(),
-                            style: TextStyle(color: Colors.amber),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ],
                   ),
@@ -194,8 +220,19 @@ class _DetailScreenState extends State<DetailScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('개요'),
-          Text(provider.movieDetail['overview']),
+          Text(
+            '개요',
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          ),
+          Container(
+            margin: EdgeInsets.only(top: 16),
+            child: Text(
+              provider.movieDetail['overview'].length == 0
+                  ? '개요가 아직 없습니다'
+                  : provider.movieDetail['overview'],
+              style: TextStyle(fontSize: 14, color: Colors.black45),
+            ),
+          ),
         ],
       ),
     );
@@ -207,9 +244,13 @@ class _DetailScreenState extends State<DetailScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('주요 출연진'),
-          SizedBox(
-            height: 70,
+          Text(
+            '주요 출연진',
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          ),
+          Container(
+            height: 56,
+            margin: EdgeInsets.only(top: 16),
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
               itemCount: provider.movieActors.length,
@@ -218,6 +259,7 @@ class _DetailScreenState extends State<DetailScreen> {
                 return SizedBox(
                   width: 60,
                   child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       CircleAvatar(
                         backgroundImage: Image.network(
@@ -243,14 +285,26 @@ class _DetailScreenState extends State<DetailScreen> {
 
   Container _buildReview(DetailMovieProvider provider) {
     return Container(
-      margin: EdgeInsets.only(top: 24),
+      margin: EdgeInsets.only(top: 24, bottom: 24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('리뷰'),
+          Container(
+            margin: EdgeInsets.only(bottom: 16),
+            child: Text(
+              '리뷰',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+          ),
+          if (provider.movieReviews.length == 0)
+            Text(
+              '리뷰가 아직 없습니다',
+              style: TextStyle(fontSize: 14, color: Colors.black45),
+            ),
           for (int i = 0; i < provider.movieReviews.length; i++)
             Container(
-              padding: EdgeInsets.all(12),
+              margin: EdgeInsets.only(bottom: 16),
+              padding: EdgeInsets.all(16),
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.all(Radius.circular(8)),
@@ -263,26 +317,25 @@ class _DetailScreenState extends State<DetailScreen> {
                   ),
                 ],
               ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(8.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Text(
-                      provider.movieReviews[i]['content'],
-                      maxLines: 3,
-                      overflow: TextOverflow.ellipsis,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    provider.movieReviews[i]['content'],
+                    maxLines: 3,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(fontSize: 12, color: Colors.black87),
+                  ),
+                  Container(
+                    margin: EdgeInsets.only(top: 8),
+                    child: Text(
+                      provider.movieReviews[i]['author'],
+                      style: TextStyle(fontSize: 10, color: Colors.black45),
                     ),
-                    Container(
-                      margin: EdgeInsets.only(top: 8),
-                      child: Text(
-                        provider.movieReviews[i]['author'],
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-            )
+            ),
         ],
       ),
     );
