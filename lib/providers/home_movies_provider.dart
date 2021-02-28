@@ -42,6 +42,21 @@ class HomeMoviesProvider extends ChangeNotifier {
     _genres = newMap;
   }
 
+  Future<void> fetchNextNowMoviePage() async {
+    String url = 'https://api.themoviedb.org/3/discover/movie?'
+        'primary_release_date.gte=${DateFormat('yyyy-MM-dd').format(DateTime.now().subtract(Duration(days: 30)))}'
+        '&primary_release_date.lte=${DateFormat('yyyy-MM-dd').format(DateTime.now())}'
+        '&api_key=${Keys.apiKey}&page=${_nowMoviePage + 1}';
+    final response = await http.get(url);
+    Map<String, dynamic> responseMap = json.decode(response.body);
+    _nowMoviePage = responseMap['page'];
+    _nowMovies.addAll((responseMap['results'] as List<dynamic>)
+        .map((dataMap) =>
+            serializers.deserializeWith(MovieDto.serializer, dataMap))
+        .toList());
+    notifyListeners();
+  }
+
   Future<void> fetchAndSetNowMovies() async {
     String url = 'https://api.themoviedb.org/3/discover/movie?'
         'primary_release_date.gte=${DateFormat('yyyy-MM-dd').format(DateTime.now().subtract(Duration(days: 30)))}'

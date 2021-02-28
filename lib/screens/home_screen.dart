@@ -16,6 +16,7 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _notYetMovieLoading = false;
   bool _popularMovieLoading = false;
   bool _highRateMovieLoading = false;
+  bool _scrollLoading = false;
 
   @override
   void initState() {
@@ -74,7 +75,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             child: Column(
               children: [
-                _buildNowMovie(_theme),
+                _buildNowMovieScroll(_theme),
                 _buildNotYetMovie(_theme, _screenSize),
                 _buildPopularMovie(_theme, _screenSize),
                 _buildHighRateMovie(_theme, _screenSize),
@@ -86,7 +87,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildNowMovie(ThemeData _theme) {
+  Widget _buildNowMovieScroll(ThemeData _theme) {
     return Consumer<HomeMoviesProvider>(
       builder: (ctx, provider, child) => Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -100,84 +101,102 @@ class _HomeScreenState extends State<HomeScreen> {
             margin: EdgeInsets.only(top: 16, bottom: 40),
             child: _nowMovieLoading
                 ? Center(child: CircularProgressIndicator())
-                : ListView.builder(
-                    scrollDirection: Axis.horizontal,
-                    cacheExtent: 100,
-                    itemCount: provider.nowMovies.length,
-                    itemBuilder: (ctx, i) {
-                      final movie = provider.nowMovies[i];
-                      String movieGenres = '';
-                      for (int i = 0; i < movie.genreIds.length; i++) {
-                        movieGenres += provider.genres[movie.genreIds[i]] +
-                            (i == movie.genreIds.length - 1 ? '' : ', ');
+                : NotificationListener<ScrollNotification>(
+                    onNotification: (ScrollNotification scrollInfo) {
+                      if (!_scrollLoading &&
+                          scrollInfo.metrics.pixels ==
+                              scrollInfo.metrics.maxScrollExtent) {
+                        setState(() {
+                          _scrollLoading = true;
+                        });
+                        provider
+                            .fetchNextNowMoviePage()
+                            .then((value) => _scrollLoading = false);
                       }
-                      return GestureDetector(
-                        onTap: () => _navigateToDetail(movie, movieGenres),
-                        child: Container(
-                          margin: EdgeInsets.only(right: 17.0),
-                          width: 100,
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            children: [
-                              SizedBox(
-                                height: 160,
-                                width: 100,
-                                child: movie.posterPath == null
-                                    ? Container(
-                                        color: Colors.black26,
-                                        child: Center(
-                                          child: Text(
-                                            '정보가 없습니다',
-                                            textAlign: TextAlign.center,
-                                          ),
-                                        ),
-                                      )
-                                    : Container(
-                                        decoration: BoxDecoration(
-                                          color: Colors.white,
-                                          borderRadius: BorderRadius.all(
-                                              Radius.circular(8)),
-                                          boxShadow: [
-                                            BoxShadow(
-                                              color:
-                                                  Colors.black.withOpacity(0.4),
-                                              spreadRadius: 1,
-                                              blurRadius: 4,
-                                              offset: Offset(0,
-                                                  3), // changes position of shadow
+                      return true;
+                    },
+                    child: ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      cacheExtent: 100,
+                      itemCount: provider.nowMovies.length + 1,
+                      itemBuilder: (ctx, i) {
+                        if (i == provider.nowMovies.length) {
+                          return Center(child: CircularProgressIndicator());
+                        }
+                        final movie = provider.nowMovies[i];
+                        String movieGenres = '';
+                        for (int i = 0; i < movie.genreIds.length; i++) {
+                          movieGenres += provider.genres[movie.genreIds[i]] +
+                              (i == movie.genreIds.length - 1 ? '' : ', ');
+                        }
+                        return GestureDetector(
+                          onTap: () => _navigateToDetail(movie, movieGenres),
+                          child: Container(
+                            margin: EdgeInsets.only(right: 17.0),
+                            width: 100,
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                              children: [
+                                SizedBox(
+                                  height: 160,
+                                  width: 100,
+                                  child: movie.posterPath == null
+                                      ? Container(
+                                          color: Colors.black26,
+                                          child: Center(
+                                            child: Text(
+                                              '정보가 없습니다',
+                                              textAlign: TextAlign.center,
                                             ),
-                                          ],
-                                        ),
-                                        child: ClipRRect(
-                                          borderRadius:
-                                              BorderRadius.circular(8.0),
-                                          child: Image.network(
-                                            'https://image.tmdb.org/t/p/original${movie.posterPath}',
-                                            fit: BoxFit.cover,
+                                          ),
+                                        )
+                                      : Container(
+                                          decoration: BoxDecoration(
+                                            color: Colors.white,
+                                            borderRadius: BorderRadius.all(
+                                                Radius.circular(8)),
+                                            boxShadow: [
+                                              BoxShadow(
+                                                color: Colors.black
+                                                    .withOpacity(0.4),
+                                                spreadRadius: 1,
+                                                blurRadius: 4,
+                                                offset: Offset(0,
+                                                    3), // changes position of shadow
+                                              ),
+                                            ],
+                                          ),
+                                          child: ClipRRect(
+                                            borderRadius:
+                                                BorderRadius.circular(8.0),
+                                            child: Image.network(
+                                              'https://image.tmdb.org/t/p/original${movie.posterPath}',
+                                              fit: BoxFit.cover,
+                                            ),
                                           ),
                                         ),
-                                      ),
-                              ),
-                              Padding(
-                                padding: EdgeInsets.only(top: 7),
-                                child: Text(
-                                  movie.title,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w700,
+                                ),
+                                Padding(
+                                  padding: EdgeInsets.only(top: 7),
+                                  child: Text(
+                                    movie.title,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w700,
+                                    ),
                                   ),
                                 ),
-                              ),
-                              Padding(
-                                padding: EdgeInsets.only(top: 4),
-                                child: Star(movie.voteAverage),
-                              ),
-                            ],
+                                Padding(
+                                  padding: EdgeInsets.only(top: 4),
+                                  child: Star(movie.voteAverage),
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
-                      );
-                    },
+                        );
+                      },
+                    ),
                   ),
           ),
         ],
