@@ -44,6 +44,7 @@ class _DetailScreenState extends State<DetailScreen> {
         elevation: 0,
       ),
       body: SingleChildScrollView(
+        physics: ClampingScrollPhysics(),
         child: Stack(
           children: [
             Container(
