@@ -330,7 +330,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         boxShadow: [
                           BoxShadow(
                             color: Colors.black.withOpacity(0.4),
-                            spreadRadius: 1,
+                            spreadRadius: 0.3,
                             blurRadius: 4,
                             offset: Offset(0, 3), // changes position of shadow
                           ),
@@ -351,7 +351,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 children: [
                   Text(
                     movie.title,
-                    style: TextStyle(fontSize: 10),
+                    style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold),
                   ),
                   Padding(
                     padding: EdgeInsets.only(top: 4),
@@ -366,7 +366,8 @@ class _HomeScreenState extends State<HomeScreen> {
                           width: _screenSize.width * 0.45,
                           child: Text(
                             movieGenres,
-                            style: TextStyle(fontSize: 9),
+                            style:
+                                TextStyle(fontSize: 9, color: Colors.black45),
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
@@ -374,7 +375,8 @@ class _HomeScreenState extends State<HomeScreen> {
                           width: 50,
                           child: Text(
                             movie.releaseDate,
-                            style: TextStyle(fontSize: 9),
+                            style:
+                                TextStyle(fontSize: 9, color: Colors.black45),
                           ),
                         ),
                       ],
