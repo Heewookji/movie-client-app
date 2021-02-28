@@ -23,13 +23,13 @@ class _DetailScreenState extends State<DetailScreen> {
   Future<void> _doFutureInit() async {
     try {
       await Provider.of<DetailMovieProvider>(context, listen: false)
-          .fetchDetailMovie();
+          .fetchAndSetDetailMovie();
       await Provider.of<DetailMovieProvider>(context, listen: false)
-          .fetchMovieActor();
+          .fetchAndSetMovieActors();
+      await Provider.of<DetailMovieProvider>(context, listen: false)
+          .fetchAndSetMovieReviews();
       _isLoading = false;
-    } catch (error) {
-      print(error);
-    }
+    } catch (error) {}
   }
 
   @override
@@ -104,6 +104,7 @@ class _DetailScreenState extends State<DetailScreen> {
           _isLoading
               ? Center(child: CircularProgressIndicator())
               : Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     _buildOverview(provider),
                     _buildActor(provider),
@@ -247,6 +248,41 @@ class _DetailScreenState extends State<DetailScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text('리뷰'),
+          for (int i = 0; i < provider.movieReviews.length; i++)
+            Container(
+              padding: EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.all(Radius.circular(8)),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.2),
+                    spreadRadius: 1,
+                    blurRadius: 4,
+                    offset: Offset(0, 2), // changes position of shadow
+                  ),
+                ],
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(8.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text(
+                      provider.movieReviews[i]['content'],
+                      maxLines: 3,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    Container(
+                      margin: EdgeInsets.only(top: 8),
+                      child: Text(
+                        provider.movieReviews[i]['author'],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            )
         ],
       ),
     );
